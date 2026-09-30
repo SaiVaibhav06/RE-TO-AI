@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1600" height="640" viewBox="0 0 1600 640" role="img" aria-labelledby="title desc">
+  <title id="title">Re-To pricing cards</title>
+  <desc id="desc">Three pricing cards for Observer, Operator, and Obsessed plans, illustrated with a moonlit landscape, a pink sunset, and a magenta galaxy.</desc>
+  <metadata>
+    PNG placement windows in this 1600 by 640 artboard: observer x=278 y=125 width=297 height=111; operator x=651 y=125 width=297 height=111; obsessed x=1024 y=125 width=297 height=111.
+  </metadata>
+  <defs>
+    <style><![CDATA[
+      .mono { font-family: "IBM Plex Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+      .pixel { font-family: "Pixelify Sans", "Silkscreen", "Courier New", monospace; }
+      .ink { fill: #111318; }
+      .blue { fill: #8792d4; }
+      .pink { fill: #e600c8; }
+      .card-title { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+      .price { font-size: 32.5px; font-weight: 800; }
+      .features { font-size: 14.5px; }
+    ]]></style>
+    <path id="card-shape" d="M12 0 H339 L351 12 V499 L339 511 H12 L0 499 V12 Z"/>
+    <path id="btn-shape" d="M10 0 H288 L298 10 V36 L288 46 H10 L0 36 V10 Z"/>
+    <path id="nav-btn-shape" d="M8 0 H290 A8 8 0 0 1 298 8 V38 A8 8 0 0 1 290 46 H8 A8 8 0 0 1 0 38 V8 A8 8 0 0 1 8 0 Z"/>
+    <g id="icon-infinity" fill="none" stroke="#111318" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M2 10.5 C5 4.5 10 4.5 16 10.5 C22 16.5 27 16.5 30 10.5 C27 4.5 22 4.5 16 10.5 C10 16.5 5 16.5 2 10.5 Z"/>
+    </g>
+    <g id="icon-star" fill="#111318">
+      <path d="M10 0.5 L12.9 6.4 L19.4 7.3 L14.7 11.9 L15.8 18.4 L10 15.3 L4.2 18.4 L5.3 11.9 L0.6 7.3 L7.1 6.4 Z"/>
+    </g>
+    <g id="icon-restrict" fill="none" stroke="#111318" stroke-width="2.4" stroke-linecap="round">
+      <circle cx="10" cy="10" r="8"/><path d="M4.4 15.6 L15.6 4.4"/>
+    </g>
+    <g id="icon-clock" fill="none" stroke="#111318" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="10" cy="10" r="8.2"/><path d="M10 5.5 V10 L13.2 12"/>
+    </g>
+    <g id="icon-credit" fill="none" stroke="#e600c8" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="10" cy="10" r="8.2"/>
+      <text x="10" y="14.2" text-anchor="middle" fill="#e600c8" stroke="none" font-family="Arial, sans-serif" font-size="11" font-weight="700">$</text>
+    </g>
+  </defs>
+
+  <!-- Observer -->
+  <g id="plan-observer" transform="translate(251 18)">
+    <use xlink:href="#card-shape" fill="#fff" stroke="#111318" stroke-width="9.2"/>
+    <text x="34" y="53" class="pixel ink card-title">Observer</text>
+    <text x="319" y="56" text-anchor="end" class="pixel ink price">$2</text>
+    <text x="34" y="83" class="mono blue" font-size="12" letter-spacing="1.1">FOR EXPLORERS</text>
+    <text x="319" y="83" text-anchor="end" class="mono ink" font-size="14">/ 7 days</text>
+    <g id="png-slot-observer" data-image-slot="observer-planet" aria-label="Observer moonlit landscape illustration">
+      <rect x="27" y="107" width="297" height="111" fill="none" stroke="none"/>
+    </g>
+    <text x="175.5" y="260" text-anchor="middle" class="mono ink" font-size="14.8">Explore Re-To</text>
+    <path d="M35 289 H316" stroke="#8792d4" stroke-width="1.2"/>
+    <g transform="translate(39 322)"/><use xlink:href="#icon-infinity" x="40" y="308"/>
+    <text x="82" y="324" class="mono ink features">Available model routing</text>
+    <use xlink:href="#icon-star" x="41" y="338"/>
+    <text x="82" y="353" class="mono ink features">1 parallel request</text>
+    <use xlink:href="#icon-restrict" x="41" y="371"/>
+    <text x="82" y="387" class="mono ink features">Usage limits apply</text>
+    <use xlink:href="#icon-credit" x="41" y="405"/>
+    <text x="82" y="419" class="mono features"><tspan class="pink">$40 of usage included</tspan></text>
+    <g transform="translate(27 445)">
+      <use xlink:href="#nav-btn-shape" transform="translate(3 3)" fill="#17181a"/>
+      <use xlink:href="#nav-btn-shape" fill="#fff" stroke="#17181a" stroke-width="2"/>
+      <path d="M84 20 L90 23 L84 26" fill="none" stroke="#e600c8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="151" y="28" text-anchor="middle" class="mono ink" font-size="15.5" font-weight="650">Get Started</text>
+      <path d="M210 23 H222 M217 18 L222 23 L217 28" fill="none" stroke="#17181a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </g>
+
+  <!-- Operator, highlighted as the most popular plan -->
+  <g id="plan-operator" transform="translate(624 18)">
+    <use xlink:href="#card-shape" transform="translate(0 5)" fill="#e600c8" opacity="0.12"/>
+    <use xlink:href="#card-shape" fill="#fff" stroke="#e600c8" stroke-width="10.6"/>
+    <text x="34" y="53" class="pixel ink card-title">Operator</text>
+    <text x="319" y="56" text-anchor="end" class="pixel ink price">$20</text>
+    <text x="34" y="83" class="mono blue" font-size="12" letter-spacing="1.1">FOR BUILDERS</text>
+    <text x="319" y="83" text-anchor="end" class="mono ink" font-size="14">/ 1 month</text>
+    <g id="png-slot-operator" data-image-slot="operator-sunset" aria-label="Operator sunset landscape illustration">
+      <rect x="27" y="107" width="297" height="111" fill="none" stroke="none"/>
+    </g>
+    <text x="175.5" y="247" text-anchor="middle" class="mono ink" font-size="14.8">A higher-capacity runtime</text>
+    <text x="175.5" y="270" text-anchor="middle" class="mono ink" font-size="14.8">for real workflows.</text>
+    <path d="M35 289 H316" stroke="#8792d4" stroke-width="1.2"/>
+    <use xlink:href="#icon-infinity" x="40" y="308"/>
+    <text x="82" y="324" class="mono ink features">Available model routing</text>
+    <use xlink:href="#icon-star" x="41" y="338"/>
+    <text x="82" y="353" class="mono ink features">Usage limits apply</text>
+    <use xlink:href="#icon-restrict" x="41" y="371"/>
+    <text x="82" y="387" class="mono ink features">3 parallel requests</text>
+    <use xlink:href="#icon-credit" x="41" y="405"/>
+    <text x="82" y="419" class="mono features"><tspan class="pink">$400 of usage included</tspan></text>
+    <g transform="translate(27 445)">
+      <use xlink:href="#nav-btn-shape" transform="translate(3 3)" fill="#17181a"/>
+      <use xlink:href="#nav-btn-shape" fill="#202125" stroke="#17181a" stroke-width="2"/>
+      <path d="M84 20 L90 23 L84 26" fill="none" stroke="#f7f7f5" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="151" y="28" text-anchor="middle" class="mono" fill="#f7f7f5" font-size="15.5" font-weight="700">Get Started</text>
+      <path d="M210 23 H222 M217 18 L222 23 L217 28" fill="none" stroke="#f7f7f5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+    <g id="most-popular-badge" transform="translate(90 -18)">
+      <path d="M10 0 H160 L170 10 V24 L160 34 H10 L0 24 V10 Z" fill="#e600c8"/>
+      <path d="M16 17 L20 13 L24 17 L20 21 Z M146 17 L150 13 L154 17 L150 21 Z" fill="#111318"/>
+      <text x="85" y="22" text-anchor="middle" class="mono ink" font-size="12" font-weight="700" letter-spacing="0.5">MOST POPULAR</text>
+    </g>
+  </g>
+
+  <!-- Obsessed -->
+  <g id="plan-obsessed" transform="translate(997 18)">
+    <use xlink:href="#card-shape" fill="#fff" stroke="#111318" stroke-width="9.2"/>
+    <text x="34" y="53" class="pixel ink card-title">Obsessed</text>
+    <text x="319" y="56" text-anchor="end" class="pixel ink price">$40</text>
+    <text x="34" y="83" class="mono blue" font-size="12" letter-spacing="1.1">FOR CREATORS</text>
+    <text x="319" y="83" text-anchor="end" class="mono ink" font-size="14">/ 1 month</text>
+    <g id="png-slot-obsessed" data-image-slot="obsessed-galaxy" aria-label="Obsessed magenta galaxy illustration">
+      <rect x="27" y="107" width="297" height="111" fill="none" stroke="none"/>
+    </g>
+    <text x="175.5" y="247" text-anchor="middle" class="mono ink" font-size="14.8">Higher-capacity access for</text>
+    <text x="175.5" y="270" text-anchor="middle" class="mono ink" font-size="14.8">larger workflows.</text>
+    <path d="M35 289 H316" stroke="#8792d4" stroke-width="1.2"/>
+    <use xlink:href="#icon-infinity" x="40" y="308"/>
+    <text x="82" y="324" class="mono ink features">Available model routing</text>
+    <use xlink:href="#icon-star" x="41" y="338"/>
+    <text x="82" y="353" class="mono ink features">Higher usage allowance</text>
+    <use xlink:href="#icon-restrict" x="41" y="371"/>
+    <text x="82" y="387" class="mono ink features">6 parallel requests</text>
+    <use xlink:href="#icon-credit" x="41" y="405"/>
+    <text x="82" y="419" class="mono features"><tspan class="pink">$800 of usage included</tspan></text>
+    <g transform="translate(27 445)">
+      <use xlink:href="#nav-btn-shape" transform="translate(3 3)" fill="#17181a"/>
+      <use xlink:href="#nav-btn-shape" fill="#fff" stroke="#17181a" stroke-width="2"/>
+      <path d="M84 20 L90 23 L84 26" fill="none" stroke="#e600c8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="151" y="28" text-anchor="middle" class="mono ink" font-size="15.5" font-weight="650">Get Started</text>
+      <path d="M210 23 H222 M217 18 L222 23 L217 28" fill="none" stroke="#17181a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </g>
+
+</svg>
