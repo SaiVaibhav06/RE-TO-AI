@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
+import ReToLanding from './ReToLanding.jsx';
+import Playground from './Playground.jsx';
+import AuthPage from './AuthPage.jsx';
 
-const logo = '/assets/reto-brand-mark.png';
+import logo from '../assets/logos/logo_reto.png';
 
 function Button({ children, href = '#install', kind = 'outline' }) {
   return <a className={`button button-${kind}`} href={href}>{children}</a>;
 }
 
-function App() {
+function LegacyApp() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [copied, setCopied] = useState('');
   const [yearly, setYearly] = useState(false);
@@ -56,6 +59,15 @@ function App() {
 
     <footer className="footer"><div className="footer-main"><div className="footer-brand"><a className="brand" href="#home"><img src={logo} alt=""/><span>Re-To</span></a><p>Open-source AI coding<br/>from your terminal.</p><div className="socials"><a href="#">GH</a><a href="#">X</a></div></div><div className="footer-col"><b>PRODUCT</b><a href="#home">Home</a><a href="#models">Models</a><a href="#pricing">Pricing</a><a href="#install">Download / Install</a></div><div className="footer-col"><b>DEVELOPERS</b><a href="#">Documentation</a><a href="#">Getting Started</a><a href="#">CLI Commands</a><a href="#">Supported Models</a></div><div className="footer-col"><b>COMPANY / SUPPORT</b><a href="#">About</a><a href="#">Contact</a><a href="#">Support</a><a href="#">Security</a></div></div><div className="footer-bottom"><span>© 2026 RE-TO</span><span>MADE FOR THE WORK AHEAD <b>✳</b></span><div><a href="#">Privacy</a><a href="#">Terms</a></div></div></footer>
   </>;
+}
+
+function App() {
+  const path = window.location.pathname;
+  if (path === '/re-to-ai' || path === '/playground') return <Playground />;
+  if (path === '/login' || path === '/signup') {
+    return <AuthPage initialMode={path === '/signup' ? 'signup' : 'signin'} />;
+  }
+  return <ReToLanding />;
 }
 
 export default App;
