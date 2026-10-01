@@ -3,8 +3,8 @@ import sqlite3
 from pathlib import Path
 from typing import Any
 
-from .model_config import DEFAULT_MODELS, DEFAULT_POLICIES
-from .pricing import apply_model_pricing
+from model_config import DEFAULT_MODELS, DEFAULT_POLICIES
+from pricing import apply_model_pricing
 
 DB_PATH = Path(__file__).with_name("router.sqlite3")
 
@@ -21,6 +21,7 @@ def model_db_row(model: dict[str, Any]) -> dict[str, Any]:
 def connect() -> sqlite3.Connection:
     connection = sqlite3.connect(DB_PATH)
     connection.row_factory = sqlite3.Row
+    connection.execute("PRAGMA foreign_keys = ON")
     return connection
 
 
@@ -69,6 +70,44 @@ def init_db() -> None:
             )
             """
         )
+        db.execute(
+            """
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email TEXT NOT NULL COLLATE NOCASE UNIQUE,
+                full_name TEXT NOT NULL DEFAULT '',
+                password_hash TEXT,
+                google_subject TEXT UNIQUE,
+                github_id TEXT UNIQUE,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )
+            """
+        )
+        db.execute(
+            """
+            CREATE TABLE IF NOT EXISTS chats (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                title TEXT NOT NULL DEFAULT 'New chat',
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )
+            """
+        )
+        db.execute(
+            """
+            CREATE TABLE IF NOT EXISTS chat_messages (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                chat_id INTEGER NOT NULL REFERENCES chats(id) ON DELETE CASCADE,
+                role TEXT NOT NULL CHECK (role IN ('user', 'assistant')),
+                content TEXT NOT NULL,
+                metadata TEXT,
+                created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+            )
+            """
+        )
+        db.execute("CREATE INDEX IF NOT EXISTS chats_user_updated ON chats(user_id, updated_at DESC)")
+        db.execute("CREATE INDEX IF NOT EXISTS chat_messages_chat_created ON chat_messages(chat_id, created_at)")
         model_count = db.execute("SELECT COUNT(*) FROM models").fetchone()[0]
         if model_count == 0:
             db.executemany(

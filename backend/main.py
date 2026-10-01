@@ -1,11 +1,13 @@
+import json
 from typing import Literal
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from .database import connect, get_models, get_policies, init_db, replace_models, set_policies
-from .router_logic import route
+from auth import current_user, router as auth_router
+from database import connect, get_models, get_policies, init_db, replace_models, set_policies
+from router_logic import ModelKeyMissingError, route
 
 Tier = Literal["small", "mid", "premium", "private", "tool"]
 
@@ -32,6 +34,22 @@ class PolicyConfig(BaseModel):
     rate_limit_per_minute: int
 
 
+class ChatCreate(BaseModel):
+    title: str = "New chat"
+
+
+class ChatPrompt(BaseModel):
+    prompt: str
+
+
+def get_owned_chat(chat_id: int, user_id: int):
+    with connect() as db:
+        return db.execute(
+            "SELECT * FROM chats WHERE id = ? AND user_id = ?",
+            (chat_id, user_id),
+        ).fetchone()
+
+
 app = FastAPI(title="Smart LLM Router API")
 
 app.add_middleware(
@@ -41,6 +59,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.include_router(auth_router)
 
 
 @app.on_event("startup")
@@ -54,6 +73,118 @@ async def route_prompt(request: RouteRequest):
         return await route(request.prompt, request.user_id)
     except ValueError as error:
         raise HTTPException(status_code=400, detail=str(error)) from error
+    except ModelKeyMissingError as error:
+        raise HTTPException(status_code=503, detail=str(error)) from error
+
+
+@app.get("/api/chats")
+def list_chats(user=Depends(current_user)):
+    with connect() as db:
+        rows = db.execute(
+            """
+            SELECT chats.id, chats.title, chats.created_at, chats.updated_at,
+                   COUNT(chat_messages.id) AS message_count
+            FROM chats
+            LEFT JOIN chat_messages ON chat_messages.chat_id = chats.id
+            WHERE chats.user_id = ?
+            GROUP BY chats.id
+            ORDER BY chats.updated_at DESC, chats.id DESC
+            """,
+            (user["id"],),
+        ).fetchall()
+    return [dict(row) for row in rows]
+
+
+@app.post("/api/chats")
+def create_chat(payload: ChatCreate, user=Depends(current_user)):
+    title = " ".join(payload.title.split())[:80] or "New chat"
+    with connect() as db:
+        cursor = db.execute(
+            "INSERT INTO chats (user_id, title) VALUES (?, ?)",
+            (user["id"], title),
+        )
+        row = db.execute("SELECT * FROM chats WHERE id = ?", (cursor.lastrowid,)).fetchone()
+    return dict(row)
+
+
+@app.get("/api/chats/{chat_id}")
+def get_chat(chat_id: int, user=Depends(current_user)):
+    chat = get_owned_chat(chat_id, user["id"])
+    if not chat:
+        raise HTTPException(status_code=404, detail="Chat not found")
+    with connect() as db:
+        rows = db.execute(
+            "SELECT id, role, content, metadata, created_at FROM chat_messages WHERE chat_id = ? ORDER BY id",
+            (chat_id,),
+        ).fetchall()
+    messages = []
+    for row in rows:
+        message = dict(row)
+        message["metadata"] = json.loads(message["metadata"]) if message["metadata"] else None
+        messages.append(message)
+    return {"chat": dict(chat), "messages": messages}
+
+
+@app.delete("/api/chats/{chat_id}")
+def delete_chat(chat_id: int, user=Depends(current_user)):
+    with connect() as db:
+        cursor = db.execute(
+            "DELETE FROM chats WHERE id = ? AND user_id = ?",
+            (chat_id, user["id"]),
+        )
+    if cursor.rowcount == 0:
+        raise HTTPException(status_code=404, detail="Chat not found")
+    return {"ok": True}
+
+
+@app.post("/api/chats/{chat_id}/messages")
+async def send_chat_message(chat_id: int, payload: ChatPrompt, user=Depends(current_user)):
+    chat = get_owned_chat(chat_id, user["id"])
+    if not chat:
+        raise HTTPException(status_code=404, detail="Chat not found")
+    prompt = payload.prompt.strip()
+    if not prompt:
+        raise HTTPException(status_code=422, detail="Prompt cannot be empty")
+    if len(prompt) > 4000:
+        raise HTTPException(status_code=422, detail="Prompt must be 4000 characters or fewer")
+
+    try:
+        result = await route(prompt, str(user["id"]))
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
+    except ModelKeyMissingError as error:
+        raise HTTPException(status_code=503, detail=str(error)) from error
+
+    with connect() as db:
+        has_prior_messages = db.execute(
+            "SELECT 1 FROM chat_messages WHERE chat_id = ? LIMIT 1",
+            (chat_id,),
+        ).fetchone()
+        title = chat["title"]
+        if not has_prior_messages:
+            title = " ".join(prompt.split())[:80]
+        db.execute(
+            "INSERT INTO chat_messages (chat_id, role, content) VALUES (?, 'user', ?)",
+            (chat_id, prompt),
+        )
+        db.execute(
+            "INSERT INTO chat_messages (chat_id, role, content, metadata) VALUES (?, 'assistant', ?, ?)",
+            (chat_id, result["answer"], json.dumps(result)),
+        )
+        db.execute(
+            "UPDATE chats SET title = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND user_id = ?",
+            (title, chat_id, user["id"]),
+        )
+        messages = db.execute(
+            "SELECT id, role, content, metadata, created_at FROM chat_messages WHERE chat_id = ? ORDER BY id DESC LIMIT 2",
+            (chat_id,),
+        ).fetchall()
+    response_messages = []
+    for row in reversed(messages):
+        message = dict(row)
+        message["metadata"] = json.loads(message["metadata"]) if message["metadata"] else None
+        response_messages.append(message)
+    return {"chat_title": title, "messages": response_messages}
 
 
 @app.get("/api/models")

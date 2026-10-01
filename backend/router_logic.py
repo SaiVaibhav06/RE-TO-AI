@@ -9,7 +9,11 @@ from typing import Any
 
 import httpx
 
-from .database import connect, get_models, get_policies, log_request
+from database import connect, get_models, get_policies, log_request
+import httpx
+
+class ModelKeyMissingError(RuntimeError):
+    pass
 
 NVIDIA_ENDPOINT = "https://integrate.api.nvidia.com/v1/chat/completions"
 GROQ_ENDPOINT = "https://api.groq.com/openai/v1/chat/completions"
@@ -88,7 +92,7 @@ def calculator(text: str) -> str:
         total = amount + tax
         return f"Calculator result: {percent:g}% GST on {amount:,.0f} is {tax:,.0f}. Total: {total:,.0f}."
 
-    expression = re.sub(r"[^0-9+\-*/(). ]", "", text.replace("x", "*"))
+    expression = re.sub(r"[^0-9+\-*/(). ]", "", text.replace("x", "*")).strip()
     if not expression.strip():
         return "Calculator could not find a safe arithmetic expression."
     result = safe_eval(expression)
@@ -259,15 +263,20 @@ def model_provider(model: dict[str, Any]) -> str:
     return "nvidia"
 
 
-def model_key_available(model: dict[str, Any]) -> bool:
+def model_api_key_name(model: dict[str, Any]) -> str | None:
     if model["tier"] == "tool":
-        return True
+        return None
     provider = model_provider(model)
     if provider == "groq":
-        return bool(os.getenv("GROQ_API_KEY"))
+        return "GROQ_API_KEY"
     if provider == "nvidia-kimi":
-        return bool(os.getenv("KIMI_NVIDIA_API_KEY"))
-    return bool(os.getenv("NVIDIA_API_KEY"))
+        return "KIMI_NVIDIA_API_KEY"
+    return "NVIDIA_API_KEY"
+
+
+def model_key_available(model: dict[str, Any]) -> bool:
+    key_name = model_api_key_name(model)
+    return key_name is None or bool(os.getenv(key_name))
 
 
 async def call_model(model: dict[str, Any], prompt: str) -> str:
@@ -312,7 +321,13 @@ async def route(prompt: str, user_id: str) -> dict[str, Any]:
     sensitive = scan_pii(prompt)
     difficulty, task_type = classify(prompt)
     chosen, rejected_alternatives = choose_model(sensitive, difficulty, task_type)
-    demo_mode = not model_key_available(chosen) or chosen["tier"] == "tool"
+    key_name = model_api_key_name(chosen)
+    if key_name and not os.getenv(key_name):
+        raise ModelKeyMissingError(
+            f"{key_name} is not configured. Add it to back/.env.local and restart the backend to enable model responses."
+        )
+
+    demo_mode = chosen["tier"] == "tool"
     escalated = False
 
     if demo_mode:
