@@ -5,11 +5,8 @@ import './AuthPage.css';
 
 const authErrors = {
   google_cancelled: 'Google sign-in was cancelled.',
-  github_cancelled: 'GitHub sign-in was cancelled.',
   google_invalid_state: 'Google sign-in expired. Please try again.',
-  github_invalid_state: 'GitHub sign-in expired. Please try again.',
-  google_failed: 'Google sign-in could not be completed.',
-  github_failed: 'GitHub sign-in could not be completed.'
+  google_failed: 'Google sign-in could not be completed.'
 };
 
 function AuthPage({ initialMode = 'signin' }) {
@@ -18,7 +15,7 @@ function AuthPage({ initialMode = 'signin' }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [providers, setProviders] = useState({ google: false, github: false });
+  const [providers, setProviders] = useState({ google: false });
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
 
@@ -33,7 +30,7 @@ function AuthPage({ initialMode = 'signin' }) {
     fetch('/api/auth/providers')
       .then((response) => response.ok ? response.json() : null)
       .then((data) => {
-        if (active && data) setProviders(data);
+        if (active && data) setProviders({ google: Boolean(data.google) });
       })
       .catch(() => {});
 
@@ -109,16 +106,20 @@ function AuthPage({ initialMode = 'signin' }) {
               </p>
 
               <div className="auth-socials">
-                <button type="button" disabled={!providers.google} onClick={() => { window.location.href = '/api/auth/google'; }}>
+                <button type="button" onClick={() => {
+                  if (!providers.google) {
+                    setError('Google sign-in is not configured yet. Add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to back/.env.local.');
+                    return;
+                  }
+                  window.location.assign('/api/auth/google');
+                }}>
                   <span className="google-mark" aria-hidden="true">G</span>Continue with Google
                 </button>
-                <button type="button" disabled={!providers.github} onClick={() => { window.location.href = '/api/auth/github'; }}>
-                  <span className="github-mark" aria-hidden="true">GH</span>Continue with GitHub
-                </button>
               </div>
-              {!providers.google && !providers.github && (
-                <p className="auth-provider-note">Social sign-in needs provider credentials. Email sign-in is ready.</p>
+              {!providers.google && (
+                <p className="auth-provider-note">Google sign-in needs provider credentials. Email sign-in is ready.</p>
               )}
+              {error && <p className="auth-error auth-social-error" role="alert">{error}</p>}
 
               <div className="auth-divider"><span />or sign in with email<span /></div>
 
@@ -142,7 +143,6 @@ function AuthPage({ initialMode = 'signin' }) {
                     </button>
                   </span>
                 </label>
-                {error && <p className="auth-error" role="alert">{error}</p>}
                 <button className="auth-submit" type="submit" disabled={submitting}>
                   {submitting ? 'Please wait...' : mode === 'signup' ? 'Create account' : 'Sign in'} <span aria-hidden="true">→</span>
                 </button>
