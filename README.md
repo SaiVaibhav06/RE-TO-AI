@@ -1,6 +1,3 @@
-Here’s a **README.md draft** for your RE‑TO AI project. It’s structured in a professional, GitHub‑ready format that you can polish further:
-
-```markdown
 # RE‑TO AI (Reduce Tokens)
 
 RE‑TO AI is a full‑stack application designed to optimize token usage in AI workflows by embedding user prompts and storing them in a vector database for efficient retrieval. It demonstrates end‑to‑end development with backend services, frontend UI, database design, authentication, and containerized deployment.
